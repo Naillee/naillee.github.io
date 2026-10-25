@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>李思旻 Nail Lee · 作品集</title>
+  <link rel="stylesheet" href="./site.css">
+  <script type="module" src="./site.js"></script>
+</head>
+<body>
+  <div class="resize left" role="separator" tabindex="0" aria-orientation="vertical" aria-label="调整阅读宽度，左边条" aria-valuenow="800" aria-valuemin="560" aria-valuemax="1408"></div>
+  <div class="resize right" role="separator" tabindex="0" aria-orientation="vertical" aria-label="调整阅读宽度，右边条" aria-valuenow="800" aria-valuemin="560" aria-valuemax="1408"></div>
+  <nav class="nav" aria-label="主导航">
+    <div class="nav-left"><button class="avatar" data-home aria-label="返回首页"><img data-media-id="profile-avatar" alt="李思旻"></button><button class="nav-view" data-view aria-pressed="false" aria-label="Gallery View，切换到全部项目" aria-describedby="view-help"><span class="view-label"><span class="view-label-en en">Gallery View</span><span class="view-label-zh">全部项目</span></span><svg class="switch-mark" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h13l-3-3M17 14H4l3 3"/></svg><span class="view-hint" id="view-help" role="tooltip">切换到全部项目</span></button></div>
+    <div class="nav-right"><button data-about>关于我</button><button class="theme" aria-label="切换为暗色"><span aria-hidden="true">◐</span></button></div>
+  </nav>
+  <main class="canvas" id="main">
+    <div class="sheet">
+      <section class="intro"><div class="identity"><button data-about><h1>李思旻</h1></button><span class="en">Nail Lee</span></div><p class="intro-copy"></p><p class="position">经营统筹 / 项目运营 / 营销策划</p></section>
+      <section class="index-view" aria-labelledby="index-heading"><div class="section-head"><h2 id="index-heading">主要项目</h2><span class="index-note en">FEATURED WORK</span></div><div class="series-list" id="series-list"></div></section>
+      <section class="gallery-view" hidden aria-labelledby="gallery-heading"><div class="section-head"><h2 id="gallery-heading">全部项目</h2><span class="en">Gallery</span></div><div class="gallery-layout"><div class="gallery-main"><div class="gallery-grid" aria-label="项目影像瀑布流"></div><p id="empty-state" hidden>这个分类的作品正在整理。</p></div></div></section>
+      <footer class="footer">
+        <svg class="footer-signature" viewBox="580 125 1080 490" role="img" aria-label="李思旻的手写签名" focusable="false">
+          <defs>
+            <filter id="signature-tone" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+              <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  -0.36 -0.36 -0.36 0 1.04" result="signature-alpha"/>
+              <feFlood flood-color="currentColor" result="signature-color"/>
+              <feComposite in="signature-color" in2="signature-alpha" operator="in"/>
+            </filter>
+          </defs>
+          <image data-media-id="profile-signature-original" x="0" y="0" width="2172" height="724" filter="url(#signature-tone)"/>
+        </svg>
+        <button data-about>履历与联系</button><span class="preview-label">本地预览 · 部分内容为示意</span>
+      </footer>
+    </div>
+  </main>
+  <dialog id="reader" aria-label="作品阅读"><div class="reader-content"></div><div class="split-handle" role="separator" tabindex="0" aria-label="调整影像与研读宽度" aria-orientation="vertical" aria-valuenow="50" aria-valuemin="30" aria-valuemax="70" hidden></div></dialog>
+</body>
+</html>

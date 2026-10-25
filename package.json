@@ -1,0 +1,17 @@
+{
+  "name": "naillee-portfolio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build && node tools/verify.mjs"
+  },
+  "dependencies": {
+    "astro": "7.4.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "sharp": "0.35.5",
+    "typescript": "6.0.3"
+  }
+}
