@@ -1,16 +1,18 @@
+import {activateNearbyImages} from './image-loading.mjs';
 import { createVideoSession } from './video-session.mjs';
-import { createMediaResolver } from './media-runtime.mjs';
+import { createMediaResolver, mediaURL } from './media-runtime.mjs';
 const root = document.documentElement;
 const modal = document.querySelector('#reader');
 const content = modal.querySelector('.reader-content');
 const storage = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k,v) { try { localStorage.setItem(k,String(v)); } catch {} } };
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let responsiveMedia = new Map();
+let responsiveMedia = new Map(), mediaThumbnails=new Map();
+const thumbFor=m=>m.thumbnail || mediaThumbnails.get(m.kind==='video'?m.poster:m.src) || (m.kind==='video'?m.poster:m.src);
 function applyResponsiveCovers() {
   document.querySelectorAll('.gallery-card img').forEach(img => {
     const variants = responsiveMedia.get(img.src);
     if (variants?.length) {
-      img.srcset = variants.map(v => new URL(v.url.slice(1),new URL('./',import.meta.url)).href + ' ' + v.width + 'w').join(', ');
+      img.srcset = variants.map(v => mediaURL(v,new URL('./',import.meta.url)) + ' ' + v.width + 'w').join(', ');
       img.sizes = Math.max(1,Math.ceil(img.clientWidth)) + 'px';
     }
   });
@@ -139,7 +141,7 @@ function closeShell() {
   active = null; content.innerHTML = '';
 }
 function videoPreview(m,i) {
-  return `<button class="video-preview" data-video-play data-video-index="${i}" aria-label="播放视频${String(i+1).padStart(2,'0')}"><img src="${esc(m.poster || '')}" alt="" draggable="false"><span aria-hidden="true">▷</span></button>`;
+  return `<button class="video-preview" data-video-play data-video-index="${i}" aria-label="播放视频${String(i+1).padStart(2,'0')}"><img data-src="${esc(m.poster || '')}" alt="" draggable="false"><span aria-hidden="true">▷</span></button>`;
 }
 function fillVideoPosters(p) {
   modal.querySelectorAll('.media-slide').forEach((slide,i)=>{
@@ -160,7 +162,7 @@ function updateVideoControls() {
 function mediaMarkup(p,type) {
   if (p.document) return `<section class="panel media-panel proposal-panel" aria-label="方案阅读"><div class="media-toolbar"><span>方案策划</span><button data-close-all aria-label="关闭方案">关闭</button></div><iframe class="proposal-document" src="${esc(p.document)}" title="${esc(p.titleZh)}完整方案"></iframe><div class="media-footer"><h2>${esc(p.titleZh)}</h2><a href="${esc(p.document)}" target="_blank" rel="noopener">打开完整方案 PDF</a></div></section>`;
   const year = type === 'series' ? (p.subtitle || '') : p.year || (p.placeholder ? '内容待补充' : '集合影像');
-  const thumbnails = p.media.map((m,index) => `<button type="button" data-media-select="${index}" aria-label="查看第${index+1}项：${esc(m.caption || m.alt || '项目媒体')}" aria-pressed="false">${m.kind !== 'video' || m.poster ? `<img src="${esc(m.thumbnail || (m.kind === 'video' ? m.poster : m.src))}" alt="" draggable="false" loading="lazy">` : '<span>视频</span>'}${m.kind === 'video' ? '<span class="thumbnail-video">视频</span>' : ''}</button>`).join('');
+  const thumbnails = p.media.map((m,index) => `<button type="button" data-media-select="${index}" aria-label="查看第${index+1}项：${esc(m.caption || m.alt || '项目媒体')}" aria-pressed="false">${m.kind !== 'video' || m.poster ? `<img src="${esc(thumbFor(m))}" alt="" draggable="false" loading="lazy">` : '<span>视频</span>'}${m.kind === 'video' ? '<span class="thumbnail-video">视频</span>' : ''}</button>`).join('');
   return `<section class="panel media-panel ${type === 'work' ? 'is-work' : ''}" aria-label="项目影像"><div class="media-toolbar"><span>${type === 'series' ? '集合影像' : ''}</span><div>${history.state?.nlDepth > 1 ? '<button data-back>返回</button>' : ''}<button data-close-all aria-label="关闭项目影像">关闭</button></div></div><div class="media-window"></div><div class="media-controls"><div class="video-actions" hidden><button data-video-play aria-label="播放视频">播放</button><button data-video-sound aria-label="开启声音">开声</button><button data-video-expand aria-label="放大查看视频">放大</button></div><div><button data-prev aria-label="上一张">‹</button><span class="counter num"></span><button data-next aria-label="下一张">›</button></div></div><div class="media-thumbnails" tabindex="0" role="group" aria-label="媒体缩略图，可横向滚动或拖动">${thumbnails}</div><div class="media-footer"><div><h2>${esc(p.titleZh)}</h2>${type === 'series' ? `<span class="year">${esc(year)}</span>` : ''}</div>${type === 'series' ? '<button class="study-toggle" data-study aria-expanded="false">项目研读</button>' : ''}</div></section>`;
 }
 const mediaCount = (index,total) => `${String(total ? index+1 : 0).padStart(2,'0')} / ${String(total).padStart(2,'0')}`;
@@ -171,7 +173,7 @@ function paintMedia(align = true) {
   const windowEl = modal.querySelector('.media-window');
   windowEl.classList.toggle('has-video',!!videoSession);
   if (!windowEl.children.length) {
-    windowEl.innerHTML = list.map((m,i) => `<div class="media-slide" style="--media-ratio:${Number(m.width)/Number(m.height) || 1.5}">${m.kind === 'video' ? videoPreview(m,i) : `<img src="${esc(m.src)}" alt="${esc(m.alt)}" data-media-index="${i}" loading="${i===index?'eager':'lazy'}" decoding="async" tabindex="0" draggable="false" aria-label="${esc(m.alt)}，点击放大">`}</div>`).join('');
+    windowEl.innerHTML = list.map((m,i) => `<div class="media-slide" style="--media-ratio:${Number(m.width)/Number(m.height) || 1.5}">${m.kind === 'video' ? videoPreview(m,i) : `<img data-src="${esc(m.src)}" alt="${esc(m.alt)}" data-media-index="${i}" loading="${i===index?'eager':'lazy'}" decoding="async" tabindex="0" draggable="false" aria-label="${esc(m.alt)}，点击放大">`}</div>`).join('');
     windowEl.addEventListener('scroll',() => {
       if (windowEl._scrollFrame) return;
       const ownerKey=mediaKey();
@@ -189,9 +191,10 @@ function paintMedia(align = true) {
     const slide = windowEl.children[index];
     if (slide) windowEl.scrollLeft = slide.offsetLeft-windowEl.offsetLeft-(windowEl.clientWidth-slide.clientWidth)/2;
   }
+  activateNearbyImages(windowEl,index);
   const selectedImage=windowEl.children[index]?.querySelector('img[data-media-index]');if(selectedImage){selectedImage.loading='eager';selectedImage.fetchPriority='high';}
   if (videoSession && !lightbox) videoSession.mount(index,windowEl.children[index],{allowInitialAutoplay:!(isMobile() && route().study)});
-  if (videoSession) fillVideoPosters(p);
+  if (videoSession) {fillVideoPosters(p);activateNearbyImages(windowEl,index);}
   updateVideoControls();
   modal.querySelector('.counter').textContent = mediaCount(index,list.length);
   modal.querySelector('[data-prev]').disabled = index <= 0; modal.querySelector('[data-next]').disabled = index >= list.length-1;
@@ -414,13 +417,17 @@ try {
   const response = await fetch('./content.preview.json'); if (!response.ok) throw new Error('Content could not be loaded');
   const registryResponse = await fetch(new URL('./media-registry.json',import.meta.url)); if (!registryResponse.ok) throw new Error('Media registry could not be loaded');
   const registry = await registryResponse.json();
-  responsiveMedia = new Map(registry.map(m => [new URL(m.url.slice(1),new URL('./',import.meta.url)).href,m.variants]));
+  responsiveMedia = new Map(registry.map(m => [mediaURL(m,new URL('./',import.meta.url)),m.variants]));
   const resolver = createMediaResolver(registry);
+  const registryById=new Map(registry.map(m=>[m.id,m]));
+  for(const m of registry){const explicit=registryById.get(m.id+'-thumb');const small=(m.variants||[]).filter(v=>v.width<=480).sort((a,b)=>b.width-a.width)[0];if(explicit||small)mediaThumbnails.set(resolver.urlFor(m.id),explicit?resolver.urlFor(explicit.id):mediaURL(small,new URL('./',import.meta.url)));}
+
   data = resolver.hydrate(await response.json());
   document.querySelectorAll('[data-media-id]').forEach(element => element.setAttribute(element.tagName.toLowerCase() === 'image' ? 'href' : 'src',resolver.urlFor(element.dataset.mediaId)));
   const avatar = document.querySelector('.avatar img');
   avatar.src = data.profile.avatar; avatar.alt = data.profile.name;
   document.querySelector('.intro-copy').textContent = data.home.intro;
+  document.querySelector('.footer-contacts').innerHTML = data.profile.contacts.filter(contact => contact.href).map(contact => `<a href="${esc(contact.href)}" aria-label="${esc(contact.label)}：${esc(contact.value)}">${esc(contact.value)}</a>`).join('');
   // Give a direct link the same close/back hierarchy as entering from the index.
   const initialRoute = route();
   if (['series','work','about'].includes(initialRoute.type) && !history.state?.nlDepth) {
