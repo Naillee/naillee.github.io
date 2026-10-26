@@ -20,15 +20,8 @@ jobs:
       - name: Set site address
         shell: bash
         run: |
-          owner="$GITHUB_REPOSITORY_OWNER"
-          owner="${owner,,}"
-          repo="${GITHUB_REPOSITORY#*/}"
-          echo "SITE_URL=https://$owner.github.io" >> "$GITHUB_ENV"
-          if [[ "${repo,,}" == "$owner.github.io" ]]; then
-            echo "BASE_PATH=/" >> "$GITHUB_ENV"
-          else
-            echo "BASE_PATH=/$repo/" >> "$GITHUB_ENV"
-          fi
+          echo "SITE_URL=https://lisimin.top/" >> "$GITHUB_ENV"
+          echo "BASE_PATH=/" >> "$GITHUB_ENV"
       - run: npm ci
       - run: npm run build
         env:

@@ -157,13 +157,15 @@ function updateVideoControls() {
     const state=videoSession.state, play=group.querySelector('[data-video-play]'), sound=group.querySelector('[data-video-sound]');
     if(play){play.textContent=state.paused ? (state.ended ? '重播' : '播放') : '暂停';play.setAttribute('aria-label',state.paused ? '播放视频' : '暂停视频');}
     if(sound){sound.textContent=state.muted ? '开声' : '静音';sound.setAttribute('aria-label',state.muted ? '开启声音' : '关闭声音');sound.setAttribute('aria-pressed',String(!state.muted));}
+    const quality=group.querySelector('[data-video-quality]');
+    if(quality){quality.hidden=state.qualities.length<2;quality.innerHTML=state.qualities.map(q=>`<button data-video-quality-value="${q}" aria-label="切换至${q}" aria-pressed="${state.quality===q}">${q}</button>`).join('');}
   });
 }
 function mediaMarkup(p,type) {
   if (p.document) return `<section class="panel media-panel proposal-panel" aria-label="方案阅读"><div class="media-toolbar"><span>方案策划</span><button data-close-all aria-label="关闭方案">关闭</button></div><iframe class="proposal-document" src="${esc(p.document)}" title="${esc(p.titleZh)}完整方案"></iframe><div class="media-footer"><h2>${esc(p.titleZh)}</h2><a href="${esc(p.document)}" target="_blank" rel="noopener">打开完整方案 PDF</a></div></section>`;
   const year = type === 'series' ? (p.subtitle || '') : p.year || (p.placeholder ? '内容待补充' : '集合影像');
   const thumbnails = p.media.map((m,index) => `<button type="button" data-media-select="${index}" aria-label="查看第${index+1}项：${esc(m.caption || m.alt || '项目媒体')}" aria-pressed="false">${m.kind !== 'video' || m.poster ? `<img src="${esc(thumbFor(m))}" alt="" draggable="false" loading="lazy">` : '<span>视频</span>'}${m.kind === 'video' ? '<span class="thumbnail-video">视频</span>' : ''}</button>`).join('');
-  return `<section class="panel media-panel ${type === 'work' ? 'is-work' : ''}" aria-label="项目影像"><div class="media-toolbar"><span>${type === 'series' ? '集合影像' : ''}</span><div>${history.state?.nlDepth > 1 ? '<button data-back>返回</button>' : ''}<button data-close-all aria-label="关闭项目影像">关闭</button></div></div><div class="media-window"></div><div class="media-controls"><div class="video-actions" hidden><button data-video-play aria-label="播放视频">播放</button><button data-video-sound aria-label="开启声音">开声</button><button data-video-expand aria-label="放大查看视频">放大</button></div><div><button data-prev aria-label="上一张">‹</button><span class="counter num"></span><button data-next aria-label="下一张">›</button></div></div><div class="media-thumbnails" tabindex="0" role="group" aria-label="媒体缩略图，可横向滚动或拖动">${thumbnails}</div><div class="media-footer"><div><h2>${esc(p.titleZh)}</h2>${type === 'series' ? `<span class="year">${esc(year)}</span>` : ''}</div>${type === 'series' ? '<button class="study-toggle" data-study aria-expanded="false">项目研读</button>' : ''}</div></section>`;
+  return `<section class="panel media-panel ${type === 'work' ? 'is-work' : ''}" aria-label="项目影像"><div class="media-toolbar"><span>${type === 'series' ? '集合影像' : ''}</span><div>${history.state?.nlDepth > 1 ? '<button data-back>返回</button>' : ''}<button data-close-all aria-label="关闭项目影像">关闭</button></div></div><div class="media-window"></div><div class="media-controls"><div class="video-actions" hidden><button data-video-play aria-label="播放视频">播放</button><button data-video-sound aria-label="开启声音">开声</button><span class="video-quality" data-video-quality role="group" aria-label="视频清晰度" hidden></span><button data-video-expand aria-label="放大查看视频">放大</button></div><div><button data-prev aria-label="上一张">‹</button><span class="counter num"></span><button data-next aria-label="下一张">›</button></div></div><div class="media-thumbnails" tabindex="0" role="group" aria-label="媒体缩略图，可横向滚动或拖动">${thumbnails}</div><div class="media-footer"><div><h2>${esc(p.titleZh)}</h2>${type === 'series' ? `<span class="year">${esc(year)}</span>` : ''}</div>${type === 'series' ? '<button class="study-toggle" data-study aria-expanded="false">项目研读</button>' : ''}</div></section>`;
 }
 const mediaCount = (index,total) => `${String(total ? index+1 : 0).padStart(2,'0')} / ${String(total).padStart(2,'0')}`;
 function paintMedia(align = true) {
@@ -228,7 +230,7 @@ function openLightbox(image) {
   mediaPositions.set(mediaKey(),Number(image?.dataset.mediaIndex ?? mediaPositions.get(mediaKey()) ?? 0)); paintMedia();
   lightboxOpener = image; content.inert = true; modal.querySelector('.split-handle').inert = true;
   lightbox = document.createElement('section'); lightbox.className = 'panel media-lightbox'; lightbox.setAttribute('role','dialog'); lightbox.setAttribute('aria-modal','true'); lightbox.setAttribute('aria-label','放大查看项目媒体');
-  lightbox.innerHTML = '<header class="lightbox-bar"><span class="lightbox-caption"></span><button data-lightbox-close aria-label="关闭放大查看">关闭</button></header><div class="lightbox-window"></div><footer class="lightbox-bar"><div class="video-actions" hidden><button data-video-play aria-label="播放视频">播放</button><button data-video-sound aria-label="开启声音">开声</button></div><button data-lightbox-prev aria-label="放大查看上一项">‹</button><span class="lightbox-count num"></span><button data-lightbox-next aria-label="放大查看下一项">›</button></footer>';
+  lightbox.innerHTML = '<header class="lightbox-bar"><span class="lightbox-caption"></span><button data-lightbox-close aria-label="关闭放大查看">关闭</button></header><div class="lightbox-window"></div><footer class="lightbox-bar"><div class="video-actions" hidden><button data-video-play aria-label="播放视频">播放</button><button data-video-sound aria-label="开启声音">开声</button><span class="video-quality" data-video-quality role="group" aria-label="视频清晰度" hidden></span></div><button data-lightbox-prev aria-label="放大查看上一项">‹</button><span class="lightbox-count num"></span><button data-lightbox-next aria-label="放大查看下一项">›</button></footer>';
   modal.append(lightbox); paintLightbox(); lightbox.querySelector('[data-lightbox-close]').focus({preventScroll:true});
 }
 function closeLightbox(restoreFocus=true) {
@@ -310,7 +312,7 @@ function renderRoute() {
   }
   const p = find(r.type,r.id); if (!p) { closeShell(); return; }
   const changed = active?.id !== r.id || active?.type !== r.type;
-  if (changed) { videoSession?.dispose(); videoSession=null; pauseMedia(); active = {type:r.type,id:r.id}; if(p.media.some(m=>m.kind==='video')){mediaPositions.set(mediaKey(),Math.max(0,p.media.findIndex(m=>m.autoplayOnOpen)));videoSession=createVideoSession(p.media,updateVideoControls);} content.innerHTML = mediaMarkup(p,r.type); paintMedia(); }
+  if (changed) { videoSession?.dispose(); videoSession=null; pauseMedia(); active = {type:r.type,id:r.id}; if(p.media.some(m=>m.kind==='video')){if(!mediaPositions.has(mediaKey()))mediaPositions.set(mediaKey(),0);videoSession=createVideoSession(p.media,updateVideoControls);} content.innerHTML = mediaMarkup(p,r.type); paintMedia(); }
   const study = modal.querySelector('.study-panel');
   if (r.study && r.type === 'series') {
     if (!study) { content.insertAdjacentHTML('beforeend',studyMarkup(p)); modal.querySelector('.study-scroll').scrollTop = studyPositions.get(p.id) || 0; }
@@ -327,6 +329,7 @@ document.addEventListener('click',event => {
   const button = event.target.closest('button'); if (!button || !data) return;
   if (button.matches('[data-video-play]')) { if(performance.now()<thumbnailClickBlockedUntil)return; const i=Number(button.dataset.videoIndex ?? mediaPositions.get(mediaKey()) ?? 0); if(i!==(mediaPositions.get(mediaKey()) || 0)){mediaPositions.set(mediaKey(),i);paintMedia();} videoSession?.togglePlay(); }
   else if (button.matches('[data-video-sound]')) videoSession?.toggleSound();
+  else if (button.matches('[data-video-quality-value]')) videoSession?.setQuality(button.dataset.videoQualityValue);
   else if (button.matches('[data-video-expand]')) openLightbox(button);
   else if (button.matches('[data-lightbox-close]')) closeLightbox();
   else if (button.matches('[data-lightbox-prev]')) changeMedia(-1);

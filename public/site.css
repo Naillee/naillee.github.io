@@ -192,3 +192,9 @@ footer.lightbox-bar{border-top:1px solid var(--line);border-bottom:0}
 .media-panel.is-work .media-window{--main-image-height:clamp(200px,50dvh,500px)}
 @media(max-width:780px){.gallery-card figure{border-radius:10px}.media-panel.is-work .media-window{--main-image-height:40dvh}}
 .media-panel.is-work .media-slide{max-width:100%}
+
+/* Resolution controls extend the existing quiet video toolbar. */
+.video-quality{display:inline-flex;align-items:center;gap:0;white-space:nowrap}
+.video-quality[hidden]{display:none}
+.video-quality button[aria-pressed="true"]{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+@media(max-width:520px){.media-controls:has(.video-actions:not([hidden])){flex-wrap:wrap}.media-controls .video-actions{flex-wrap:wrap}.media-controls .video-actions button{padding:0 4px}.media-controls>div:last-child{margin-left:auto}}
