@@ -308,13 +308,6 @@
     "sha256": "88b33af1517afc9e959d356224d0a9ed7076a869a265817f7945f5ad98b698f3"
   },
   {
-    "path": "media-library/film-still.svg",
-    "mediaId": "film-still",
-    "publicApproved": true,
-    "bytes": 394,
-    "sha256": "2a5d07ad22574bf3a50ef2c006b7d5a50b6ed034962e0481568f96ef6ff752e5"
-  },
-  {
     "path": "media-library/fw-media-001.webp",
     "mediaId": "fw-media-001",
     "publicApproved": true,
@@ -4256,13 +4249,6 @@
     "sha256": "942eb365db71729ea2227b7344b603c7f9e2d45e79feb867b683684d465451dc"
   },
   {
-    "path": "media-library/portrait-study.svg",
-    "mediaId": "portrait-study",
-    "publicApproved": true,
-    "bytes": 394,
-    "sha256": "39aad59af6c9ee3a0da758184e0b43aab8112ad1231e17ff5faf6b6c8d3e0ee2"
-  },
-  {
     "path": "media-library/profile-avatar.jpg",
     "mediaId": "profile-avatar",
     "publicApproved": true,
@@ -4275,13 +4261,6 @@
     "publicApproved": true,
     "bytes": 282030,
     "sha256": "388b4e1f03186d02e125aafbf3097fd9b63dbb4b6e4758adadfb657ab3c6d088"
-  },
-  {
-    "path": "media-library/profile-resume-current.pdf",
-    "mediaId": "profile-resume-current",
-    "publicApproved": true,
-    "bytes": 11134692,
-    "sha256": "3450c5842a725704af370c5041f88f9d82e052c4a84b3af541c3730d0b1a5678"
   },
   {
     "path": "media-library/profile-signature-original.png",
