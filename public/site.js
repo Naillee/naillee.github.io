@@ -260,7 +260,7 @@ function studyMarkup(p) {
     return `<section class="study-chapter"${b.id ? ` data-chapter-id="${esc(b.id)}"` : ''}><span class="chapter-number num">${String(i+1).padStart(2,'0')}</span><h3>${esc(b.heading)}</h3>${paragraphs}${chapterImage ? `<img src="${esc(chapterImage.src)}" alt="${esc(chapterImage.alt)}" loading="lazy">` : ''}${placeholder}${b.evidence ? `<p class="source-note">${esc(b.evidence)}</p>` : ''}</section>`;
   }).join('');
   const note = study?.note ? `<aside class="case-study-note" aria-label="名称说明"><p>${esc(study.note)}</p></aside>` : '';
-  const related = study?.showRelated === false ? '' : `<section class="related"><h3>相关项目</h3>${p.relatedProjectIds.map(id => find('work',id)).filter(Boolean).map(item => `<button data-open-work="${esc(item.id)}"><span>${esc(item.titleZh)}</span><span class="num">${item.year || '待补充'}</span></button>`).join('')}</section>`;
+  const related = study?.showRelated === false ? '' : `<section class="related"><h3>相关项目</h3>${p.relatedProjectIds.map(id => find('work',id)).filter(Boolean).map(item => `<button data-open-work="${esc(item.id)}"><span>${esc(item.titleZh)}</span>${item.year ? `<span class="num">${esc(item.year)}</span>` : ''}</button>`).join('')}</section>`;
   return `<aside class="panel study-panel" aria-label="项目研读"><header class="panel-bar"><span>项目研读</span><button data-study-close aria-label="关闭研读，返回影像">关闭</button></header><div class="study-scroll${study ? ' case-study-reading' : ''}" tabindex="0">${study ? '<article class="case-study-article">' : ''}${heading}${chapters}${note}${related}${study ? '</article>' : ''}</div></aside>`;
 }
 function aboutMarkup() {
