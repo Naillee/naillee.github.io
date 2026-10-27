@@ -82,6 +82,13 @@ body.is-gallery .intro{padding-bottom:64px}body.is-gallery .intro-copy{font-size
   .about-qr{margin-top:0}.resume-download{margin-top:0}.about-label .resume-download .en{margin-top:0}
   .about-copy h4{font-size:18px}.resume-job-header h4{font-size:21px}.resume-job-section h5{font-size:18px}
 }
+/* About phone card: match the approved project reader; desktop stays unchanged. */
+@media(max-width:780px){
+  #reader .about-panel{inset:max(12px,env(safe-area-inset-top)) 14px max(clamp(32px,8dvh,64px),env(safe-area-inset-bottom));width:auto;height:auto}
+  #reader .about-scroll{min-height:0;flex:1;padding:0 22px 40px;touch-action:pan-y}
+  #reader .about-copy{font-size:15px;line-height:1.9}
+  #reader .resume-block p+p,#reader .resume-job-section>p+p{margin-top:24px}
+}
 @media(hover:none){
   .nav-view .view-label{display:flex;flex-direction:column;gap:1px;line-height:1.25;text-align:left}
   .nav-view .view-label-zh{display:block;font-size:12px;color:var(--muted)}
