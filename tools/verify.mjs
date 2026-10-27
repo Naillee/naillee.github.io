@@ -7,7 +7,7 @@ assert(registry.every(m=>m.publicApproved===true));
 const content=JSON.parse(await readFile('dist/content.preview.json'));
 const ids=new Set();function refs(v){if(typeof v==='string'&&v.startsWith('media:'))ids.add(v.slice(6));else if(v&&typeof v==='object')Object.values(v).forEach(refs)}refs(content);
 const html=await readFile('dist/index.html','utf8');for(const m of html.matchAll(/data-media-id="([^"]+)"/g))ids.add(m[1]);assert.equal(ids.size,registry.length);assert(registry.every(m=>ids.has(m.id)));assert(!/noindex|LOCAL_CANDIDATE_ONLY/.test(html));
-const allowed=new Set(['index.html','site.css','site.js','media-runtime.mjs','video-session.mjs','image-loading.mjs','content.preview.json','media-registry.json','.nojekyll','media-fallback.json']);
+const allowed=new Set(['index.html','site.css','site.js','media-runtime.mjs','video-session.mjs','image-loading.mjs','mobile-study.mjs','mobile-study.css','content.preview.json','media-registry.json','.nojekyll','media-fallback.json']);
 for(const m of registry)for(const x of [m,...m.variants||[]]){assert(/^\/media-library\/[a-z0-9_-]+\.[a-z0-9]+$/.test(x.url));if(x.remoteUrl)assertPublicMediaURL(x.remoteUrl);else allowed.add(x.url.slice(1));}
 const site=process.env.SITE_URL || 'https://lisimin.top/';
 const siteURL=new URL(site);assert(['https://lisimin.top','https://naillee.github.io'].includes(siteURL.origin)&&siteURL.pathname==='/');

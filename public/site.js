@@ -1,3 +1,4 @@
+import {createMobileStudy} from './mobile-study.mjs';
 import {activateNearbyImages} from './image-loading.mjs';
 import { createVideoSession } from './video-session.mjs';
 import { createMediaResolver, mediaURL } from './media-runtime.mjs';
@@ -181,7 +182,7 @@ function paintMedia(align = true) {
       const ownerKey=mediaKey();
       windowEl._scrollFrame = requestAnimationFrame(() => {
         windowEl._scrollFrame = null;
-        if(!windowEl.isConnected || ownerKey!==mediaKey())return;
+        if(!windowEl.isConnected || ownerKey!==mediaKey() || mobileStudy.transitioning)return;
         const slides = [...windowEl.children], left = windowEl.scrollLeft + windowEl.clientWidth/2;
         const nearest = slides.reduce((best,slide,i) => Math.abs(slide.offsetLeft-windowEl.offsetLeft+slide.clientWidth/2-left) < Math.abs(slides[best].offsetLeft-windowEl.offsetLeft+slides[best].clientWidth/2-left) ? i : best,0);
         if (nearest !== (mediaPositions.get(mediaKey()) || 0)) { mediaPositions.set(mediaKey(),nearest); paintMedia(false); }
@@ -208,6 +209,7 @@ function paintMedia(align = true) {
     if (item.left < bounds.left) track.scrollLeft += item.left-bounds.left;
     else if (item.right > bounds.right) track.scrollLeft += item.right-bounds.right;
   }
+  mobileStudy.updateMedia();
 }
 function changeMedia(direction) { mediaPositions.set(mediaKey(),(mediaPositions.get(mediaKey()) || 0)+direction); paintMedia(); if (lightbox) paintLightbox(); }
 function paintLightbox() {
@@ -299,7 +301,9 @@ function aboutMarkup() {
     </div></div>
   </section>`;
 }
+const mobileStudy = createMobileStudy({modal,content,route,back,close:closeAll,align:()=>paintMedia(),saveStudy});
 function renderRoute() {
+  mobileStudy.beforeRender();
   closeLightbox(false);
   paintView(); const r = route();
   if (!['series','work','about'].includes(r.type)) { closeShell(); return; }
@@ -324,6 +328,7 @@ function renderRoute() {
   if(videoSession && !r.study){const index=mediaPositions.get(mediaKey()) || 0;videoSession.mount(index,modal.querySelectorAll('.media-slide')[index]);}
   if (r.study && (!previousStudy || changed)) modal.querySelector('[data-study-close]')?.focus({preventScroll:true});
   else if (previousStudy && !r.study) toggle?.focus({preventScroll:true});
+  mobileStudy.sync();
 }
 document.addEventListener('click',event => {
   const button = event.target.closest('button'); if (!button || !data) return;
@@ -414,7 +419,7 @@ splitHandle.onpointerdown = e => {
   splitHandle.onpointerup = end; splitHandle.onpointercancel = end;
 };
 splitHandle.onkeydown = e => { if (['ArrowLeft','ArrowRight','Home'].includes(e.key)) { e.preventDefault(); setSplit(e.key === 'Home' ? 50 : parseFloat(root.style.getPropertyValue('--split')) + (e.key === 'ArrowLeft' ? -2 : 2),true); } };
-addEventListener('resize',() => { const media = modal.querySelector('.media-panel'); if (media) media.inert = !!(isMobile() && route().study); });
+addEventListener('resize',() => { const media = modal.querySelector('.media-panel'); if (media) media.inert = !!(isMobile() && route().study); mobileStudy.sync(); });
 addEventListener('popstate',() => { if(data) { saveStudy(); renderRoute(); } }); addEventListener('hashchange',() => { if(data) renderRoute(); });
 try {
   const response = await fetch('./content.preview.json'); if (!response.ok) throw new Error('Content could not be loaded');
